@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>License Plate Masking</title>
+    <script>
+        async function uploadImage() {
+            let formData = new FormData();
+            let fileInput = document.getElementById("file");
+            formData.append("file", fileInput.files[0]);
+
+            let response = await fetch("/upload/", {
+                method: "POST",
+                body: formData,
+            });
+
+            let data = await response.json();
+            document.getElementById("output").innerHTML = `<img src="${data.image_url}" width="400">`;
+        }
+    </script>
+</head>
+<body>
+    <h2>Upload Car Image to Mask Number Plate</h2>
+    <input type="file" id="file">
+    <button onclick="uploadImage()">Upload</button>
+    <div id="output"></div>
+</body>
+</html>
