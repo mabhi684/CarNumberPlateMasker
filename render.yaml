@@ -3,9 +3,10 @@ services:
     name: number-plate-masker-backend
     env: python
     buildCommand: |
+      cd backend
       pip install -r requirements.txt
       mkdir -p static/uploads static/output
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
@@ -19,10 +20,11 @@ services:
     name: number-plate-masker-frontend
     env: node
     buildCommand: |
+      cd frontend
       npm install
       npm run build
-    startCommand: npm run preview
+    startCommand: cd frontend && npm run preview -- --host 0.0.0.0 --port $PORT
     envVars:
       - key: VITE_API_URL
-        value: https://number-plate-masker-backend.onrender.com
-    staticPublishPath: dist 
+        value: https://carnumberplatemasker.onrender.com
+    staticPublishPath: frontend/dist 
