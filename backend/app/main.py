@@ -17,9 +17,25 @@ import io
 from fastapi import HTTPException
 import torch
 from ultralytics.nn.tasks import DetectionModel
+from torch.nn.modules.container import Sequential
+from torch.nn.modules.conv import Conv2d
+from torch.nn.modules.batchnorm import BatchNorm2d
+from torch.nn.modules.activation import ReLU, SiLU
+from torch.nn.modules.pooling import MaxPool2d
+from torch.nn.modules.upsampling import Upsample
 
 # Add safe globals for model loading
-torch.serialization.add_safe_globals([DetectionModel])
+safe_globals = [
+    DetectionModel,
+    Sequential,
+    Conv2d,
+    BatchNorm2d,
+    ReLU,
+    SiLU,
+    MaxPool2d,
+    Upsample
+]
+torch.serialization.add_safe_globals(safe_globals)
 
 # Load environment variables
 load_dotenv()
