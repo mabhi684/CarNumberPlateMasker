@@ -1,6 +1,6 @@
 import cv2
 import os
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -12,7 +12,14 @@ from typing import Tuple, Optional
 import uuid
 from dotenv import load_dotenv
 from pathlib import Path
+from PIL import Image
+import io
+from fastapi import HTTPException
+import torch
+from ultralytics.nn.tasks import DetectionModel
 
+# Add safe globals for model loading
+torch.serialization.add_safe_globals([DetectionModel])
 
 # Load environment variables
 load_dotenv()
@@ -51,7 +58,6 @@ CAR_CLASS_IDS = [2, 5, 7]
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-
 # Model paths
 MODEL_DIR = BASE_DIR / "models"
 LP_MODEL_PATH = MODEL_DIR / "LP-detection.pt"
@@ -59,12 +65,11 @@ CAR_MODEL_PATH = MODEL_DIR / "yolov8m.pt"
 
 print(f"Project root: {BASE_DIR}")
 print(f"Model directory exists: {MODEL_DIR.exists()}")
-print(f"License plate model exists: {(MODEL_DIR/'license_plate.pt').exists()}")
-print(f"Car model exists: {(MODEL_DIR/'yolov8n.pt').exists()}")
+print(f"License plate model exists: {LP_MODEL_PATH.exists()}")
+print(f"Car model exists: {CAR_MODEL_PATH.exists()}")
 
 try:
     # Load Models with absolute paths
-
     model_lp = YOLO(str(LP_MODEL_PATH))
     model_car = YOLO(str(CAR_MODEL_PATH))
 except Exception as e:
