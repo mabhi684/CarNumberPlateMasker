@@ -11,6 +11,10 @@ import numpy as np
 from typing import Tuple, Optional
 import shutil
 import uuid
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Initialize FastAPI App
 app = FastAPI()
@@ -24,21 +28,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load Models
-model_lp = YOLO('models/LP-detection.pt')  # License plate detection
-# model_car = YOLO('yolov8n.pt')  # Car detection (COCO pretrained)
-model_car = YOLO('models/LP-detection.pt')  # Car detection (COCO pretrained)
-
 # Configuration
 UPLOAD_FOLDER = "static/uploads/"
 OUTPUT_FOLDER = "static/output/"
 TARGET_SIZE = (1024, 576)
-LICENSE_PLATE_CLASS_ID = 0  # Adjust based on your LP model
-CAR_CLASS_IDS = [2, 5, 7]  # COCO classes: car, bus, truck
+LICENSE_PLATE_CLASS_ID = 0
+CAR_CLASS_IDS = [2, 5, 7]
 
 # Create directories
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+
+# Get the absolute path to the models directory
+MODELS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "models")
+
+# Load Models
+model_lp = YOLO(os.path.join(MODELS_DIR, 'license_plate.pt'))  # License plate detection
+model_car = YOLO(os.path.join(MODELS_DIR, 'yolov8n.pt'))  # Car detection
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -147,21 +153,38 @@ async def home(request: Request):
 
 @app.post("/upload/")
 async def upload_image(file: UploadFile = File(...)):
-    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+    try:
+        # Generate unique filename
+        file_extension = os.path.splitext(file.filename)[1]
+        unique_filename = f"{uuid.uuid4()}{file_extension}"
+        file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
 
-    # Save uploaded file
-    with open(file_path, "wb") as f:
-        f.write(await file.read())
+        # Save uploaded file
+        with open(file_path, "wb") as f:
+            content = await file.read()
+            f.write(content)
 
-    # Process image
-    output_path = process_image(file_path)
+        # Process image
+        output_path = process_image(file_path)
+        output_filename = os.path.basename(output_path)
 
-    return {
-        "message": "Image processed successfully",
-        "image_url": f"/static/output/{file.filename}"
-    }
+        return JSONResponse({
+            "message": "Image processed successfully",
+            "image_url": f"/static/output/{output_filename}"
+        })
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"message": f"Error processing image: {str(e)}"}
+        )
 
 
 @app.get("/output/{filename}")
 async def get_processed_image(filename: str):
     return FileResponse(os.path.join(OUTPUT_FOLDER, filename))
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
