@@ -9,9 +9,10 @@ from ultralytics import YOLO
 from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
 from typing import Tuple, Optional
-import shutil
 import uuid
 from dotenv import load_dotenv
+from pathlib import Path
+
 
 # Load environment variables
 load_dotenv()
@@ -36,7 +37,7 @@ app.add_middleware(
 )
 
 # Get base directory
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Configuration
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
@@ -50,17 +51,22 @@ CAR_CLASS_IDS = [2, 5, 7]
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-print(f"Current working directory: {os.getcwd()}")
-print(f"BASE_DIR: {BASE_DIR}")
-print(f"MODELS_DIR: {MODELS_DIR}")
-print(f"Files in MODELS_DIR: {os.listdir(MODELS_DIR) if os.path.exists(MODELS_DIR) else 'Directory not found'}")
+
+# Model paths
+MODEL_DIR = BASE_DIR / "models"
+LP_MODEL_PATH = MODEL_DIR / "LP-detection.pt"
+CAR_MODEL_PATH = MODEL_DIR / "yolov8m.pt"
+
+print(f"Project root: {BASE_DIR}")
+print(f"Model directory exists: {MODEL_DIR.exists()}")
+print(f"License plate model exists: {(MODEL_DIR/'license_plate.pt').exists()}")
+print(f"Car model exists: {(MODEL_DIR/'yolov8n.pt').exists()}")
 
 try:
     # Load Models with absolute paths
-    model_lp = YOLO('../models/license_plate.pt')
-    # model_lp = YOLO(os.path.join(, 'license_plate.pt'))
-    # model_car = YOLO(os.path.join(MODELS_DIR, 'yolov8n.pt'))
-    model_car = YOLO('../models/car.pt')
+
+    model_lp = YOLO(str(LP_MODEL_PATH))
+    model_car = YOLO(str(CAR_MODEL_PATH))
 except Exception as e:
     print(f"Error loading models: {str(e)}")
     print(f"Current directory contents: {os.listdir('.')}")
