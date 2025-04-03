@@ -57,10 +57,10 @@ print(f"Files in MODELS_DIR: {os.listdir(MODELS_DIR) if os.path.exists(MODELS_DI
 
 try:
     # Load Models with absolute paths
-    model_lp = YOLO('backend/models/license_plate.pt')
+    model_lp = YOLO('../models/license_plate.pt')
     # model_lp = YOLO(os.path.join(, 'license_plate.pt'))
     # model_car = YOLO(os.path.join(MODELS_DIR, 'yolov8n.pt'))
-    model_car = YOLO('backend/models/car.pt')
+    model_car = YOLO('../models/car.pt')
 except Exception as e:
     print(f"Error loading models: {str(e)}")
     print(f"Current directory contents: {os.listdir('.')}")
