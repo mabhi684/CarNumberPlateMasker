@@ -35,9 +35,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Get base directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # Configuration
-UPLOAD_FOLDER = "static/uploads/"
-OUTPUT_FOLDER = "static/output/"
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
+OUTPUT_FOLDER = os.path.join(BASE_DIR, "static", "output")
+MODELS_DIR = os.path.join(BASE_DIR, "models")
 TARGET_SIZE = (1024, 576)
 LICENSE_PLATE_CLASS_ID = 0
 CAR_CLASS_IDS = [2, 5, 7]
@@ -46,19 +50,25 @@ CAR_CLASS_IDS = [2, 5, 7]
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-# Get the absolute path to the models directory
-MODELS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "models")
+print(f"Current working directory: {os.getcwd()}")
+print(f"BASE_DIR: {BASE_DIR}")
+print(f"MODELS_DIR: {MODELS_DIR}")
+print(f"Files in MODELS_DIR: {os.listdir(MODELS_DIR) if os.path.exists(MODELS_DIR) else 'Directory not found'}")
 
 try:
-    # Load Models
-    model_lp = YOLO(os.path.join(MODELS_DIR, 'license_plate.pt'))  # License plate detection
-    model_car = YOLO(os.path.join(MODELS_DIR, 'yolov8n.pt'))  # Car detection
+    # Load Models with absolute paths
+    model_lp = YOLO('backend/models/license_plate.pt')
+    # model_lp = YOLO(os.path.join(, 'license_plate.pt'))
+    # model_car = YOLO(os.path.join(MODELS_DIR, 'yolov8n.pt'))
+    model_car = YOLO('backend/models/car.pt')
 except Exception as e:
     print(f"Error loading models: {str(e)}")
+    print(f"Current directory contents: {os.listdir('.')}")
     raise
 
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Mount static files with absolute path
+static_path = os.path.join(BASE_DIR, "static")
+app.mount("/static", StaticFiles(directory=static_path), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
