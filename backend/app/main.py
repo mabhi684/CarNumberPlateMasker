@@ -16,7 +16,7 @@ from PIL import Image
 import io
 from fastapi import HTTPException
 import torch
-from ultralytics.nn.tasks import DetectionModel
+from ultralytics.nn.tasks import DetectionModel, Conv
 from torch.nn.modules.container import Sequential
 from torch.nn.modules.conv import Conv2d
 from torch.nn.modules.batchnorm import BatchNorm2d
@@ -33,7 +33,8 @@ safe_globals = [
     ReLU,
     SiLU,
     MaxPool2d,
-    Upsample
+    Upsample,
+    Conv  # Add Ultralytics Conv module
 ]
 torch.serialization.add_safe_globals(safe_globals)
 
