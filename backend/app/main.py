@@ -16,8 +16,15 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# Get port from environment variable with fallback
+PORT = int(os.environ.get("PORT", 8000))
+
 # Initialize FastAPI App
-app = FastAPI()
+app = FastAPI(
+    title="Car Number Plate Masker",
+    description="API for masking license plates in car images",
+    version="1.0.0"
+)
 
 # Add CORS middleware
 app.add_middleware(
@@ -42,9 +49,13 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 # Get the absolute path to the models directory
 MODELS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "models")
 
-# Load Models
-model_lp = YOLO(os.path.join(MODELS_DIR, 'license_plate.pt'))  # License plate detection
-model_car = YOLO(os.path.join(MODELS_DIR, 'yolov8n.pt'))  # Car detection
+try:
+    # Load Models
+    model_lp = YOLO(os.path.join(MODELS_DIR, 'license_plate.pt'))  # License plate detection
+    model_car = YOLO(os.path.join(MODELS_DIR, 'yolov8n.pt'))  # Car detection
+except Exception as e:
+    print(f"Error loading models: {str(e)}")
+    raise
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -188,3 +199,8 @@ async def get_processed_image(filename: str):
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
