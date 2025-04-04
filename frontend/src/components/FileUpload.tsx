@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { Button } from "./ui/button.tsx";
 import { UploadCloud, Loader2, Download } from "lucide-react";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 const FileUpload: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
@@ -21,8 +23,9 @@ const FileUpload: React.FC = () => {
     setLoading(true);
     try {
       const res = await axios.post<{ image_url: string }>(
-        "http://127.0.0.1:8000/upload/",
-        formData
+        `${API_URL}/upload/`,
+        formData,
+        { withCredentials: true }
       );
       setProcessedImage(res.data.image_url);
     } catch (error) {
@@ -91,7 +94,7 @@ const FileUpload: React.FC = () => {
                 >
                   <h2 className="text-lg font-semibold mb-2">Processed</h2>
                   <img
-                    src={`http://127.0.0.1:8000${processedImage}`}
+                    src={`${API_URL}${processedImage}`}
                     alt="Processed"
                     className="max-w-full max-h-64 object-contain rounded-lg shadow-md"
                   />
@@ -100,7 +103,7 @@ const FileUpload: React.FC = () => {
                   <Button
                     className="mt-2 bg-primary text-white flex items-center space-x-2 p-2"
                     onClick={() =>
-                      window.open(`http://127.0.0.1:8000${processedImage}`, "_blank")
+                      window.open(`${API_URL}${processedImage}`, "_blank")
                     }
                   >
                     <Download className="w-5 h-5" />

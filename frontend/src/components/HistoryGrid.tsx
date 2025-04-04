@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 interface ProcessedImage {
   filename: string;
 }
@@ -12,7 +14,8 @@ const HistoryGrid: React.FC = () => {
     const fetchHistory = async () => {
       try {
         const res = await axios.get<ProcessedImage[]>(
-          "http://127.0.0.1:8000/history"
+          `${API_URL}/history`,
+          { withCredentials: true }
         );
         setHistory(res.data);
       } catch (error) {
@@ -30,7 +33,7 @@ const HistoryGrid: React.FC = () => {
         {history.map((item, index) => (
           <img
             key={index}
-            src={`http://127.0.0.1:8000/static/output/${item.filename}`}
+            src={`${API_URL}/static/output/${item.filename}`}
             className="w-32 h-24 rounded-lg shadow-lg"
             alt="History"
           />

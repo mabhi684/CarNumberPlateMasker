@@ -27,6 +27,7 @@ function App() {
         const response = await fetch(`${API_URL}/upload/`, {
           method: 'POST',
           body: formData,
+          credentials: 'include'
         });
 
         console.log('Response status:', response.status);
