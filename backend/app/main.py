@@ -45,8 +45,8 @@ app = FastAPI(
 # CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://carnumberplatemasker-frontend.onrender.com"],
-    allow_credentials=False,  # Set to False since we're using a specific origin
+    allow_origins=["https://carnumberplatemasker.onrender.com"],
+    allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
     expose_headers=["*"]
