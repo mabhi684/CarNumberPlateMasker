@@ -1,7 +1,6 @@
 import cv2
 import os
 import uuid
-import logging
 import numpy as np
 import torch
 from pathlib import Path
@@ -25,12 +24,7 @@ def patched_load(file):
 
 torch_safe_load = patched_load
 
-# Initialize logging
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
-logger = logging.getLogger(__name__)
+
 
 # Load environment variables
 load_dotenv()
@@ -72,16 +66,14 @@ OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)
 
 # Model Loading with Validation
 try:
-    logger.info("Initializing models...")
+    os.environ["CUDA_VISIBLE_DEVICES"] = ""  # Disable GPU detection
     assert LP_MODEL_PATH.exists(), "License plate model file missing"
     assert CAR_MODEL_PATH.exists(), "Vehicle detection model file missing"
 
     model_lp = YOLO(str(LP_MODEL_PATH))
     model_car = YOLO(str(CAR_MODEL_PATH))
 
-    logger.info("Models loaded successfully")
 except Exception as e:
-    logger.error(f"Model initialization failed: {str(e)}")
     raise RuntimeError("Failed to initialize models") from e
 
 # Mount static files
@@ -111,7 +103,6 @@ class ImageProcessor:
             return max(car_boxes, key=lambda b: (b[2] - b[0]) * (b[3] - b[1])) if car_boxes else None
 
         except Exception as e:
-            logger.error(f"Vehicle detection failed: {str(e)}")
             return None
 
     @staticmethod
@@ -187,7 +178,6 @@ def process_image(image_path: str) -> str:
         return str(output_path)
 
     except Exception as e:
-        logger.error(f"Processing failed for {image_path}: {str(e)}")
         raise
 
 
@@ -215,7 +205,6 @@ async def upload_image(file: UploadFile = File(...)):
         })
 
     except Exception as e:
-        logger.error(f"Upload failed: {str(e)}")
         return JSONResponse(
             status_code=500,
             content={"message": f"Processing error: {str(e)}"}

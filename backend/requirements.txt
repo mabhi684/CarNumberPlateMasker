@@ -1,12 +1,7 @@
-# requirements.txt
-fastapi==0.104.1
-uvicorn==0.24.0
-python-multipart==0.0.6
-ultralytics==8.0.196  # Last version compatible with torch 2.0
-opencv-python-headless==4.8.1.78  # Use headless for server environments
+torch==2.0.1+cpu --index-url https://download.pytorch.org/whl/cpu
+ultralytics==8.0.203  # For YOLOv8
 numpy==1.24.3
 python-dotenv==1.0.0
 Pillow==10.0.0
-torch==2.0.1+cu118  # Specific version with CUDA support
-torchvision==0.15.2+cu118  # Matching version
---extra-index-url https://download.pytorch.org/whl/cu118  # CUDA binaries
+fastapi>=0.95.2
+uvicorn>=0.22.0
