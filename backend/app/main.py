@@ -39,17 +39,17 @@ app = FastAPI(
 # CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://carnumberplatemasker.onrender.com"],
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["*"],
-    expose_headers=["*"]
+    allow_origins=["*"],  # Allow all origins in development
+    allow_credentials=False,  # Set to False since we're not using credentials
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
 )
 
 # Path Configuration
 BASE_DIR = Path(__file__).resolve().parent.parent
 MODEL_DIR = BASE_DIR / "models"
 STATIC_DIR = BASE_DIR / "static"
+FRONTEND_DIR = BASE_DIR.parent / "frontend" / "dist"
 
 UPLOAD_FOLDER = STATIC_DIR / "uploads"
 OUTPUT_FOLDER = STATIC_DIR / "output"
@@ -80,7 +80,8 @@ except Exception as e:
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # Serve frontend static files
-app.mount("/", StaticFiles(directory="../frontend/dist", html=True), name="frontend")
+if FRONTEND_DIR.exists():
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
 
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
