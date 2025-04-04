@@ -8,10 +8,8 @@ services:
       source .venv/bin/activate
       
       # Install backend dependencies first
-      cd backend
-      pip install -r requirements.txt
-      mkdir -p static/uploads static/output
-      cd ..
+      pip install -r backend/requirements.txt
+      mkdir -p backend/static/uploads backend/static/output
       
       # Build frontend
       cd frontend
@@ -19,12 +17,14 @@ services:
       npm run build
       cd ..
     startCommand: |
+      source .venv/bin/activate
       cd backend
-      source ../.venv/bin/activate
       python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
-        value: 3.9.0
+        value: 3.10.0
+      - key: PORT
+        value: 10000
     disk:
       name: models
       mountPath: /app/models
