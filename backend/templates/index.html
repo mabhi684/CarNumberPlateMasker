@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Car Number Plate Masker</title>
+</head>
+<body>
+    <h1>Upload Car Image</h1>
+
+    <form action="/upload/" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*">
+        <button type="submit">Process Image</button>
+    </form>
+
+    <div id="result" style="margin-top: 20px;">
+        {% if image_url %}
+            <h2>Processed Image:</h2>
+            <img src="{{ image_url }}" style="max-width: 1024px;">
+        {% endif %}
+    </div>
+</body>
+</html>
