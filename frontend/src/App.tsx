@@ -2,6 +2,8 @@ import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, Download, X, Image as ImageIcon } from 'lucide-react';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 function App() {
   const [image, setImage] = useState<File | null>(null);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
@@ -21,18 +23,31 @@ function App() {
       formData.append('file', file);
 
       try {
-        const response = await fetch('http://localhost:8000/upload/', {
+        console.log('Sending request to backend...');
+        const response = await fetch(`${API_URL}/upload/`, {
           method: 'POST',
           body: formData,
         });
 
+        console.log('Response status:', response.status);
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+        
         if (!response.ok) {
-          throw new Error('Failed to process image');
+          throw new Error(`Failed to process image: ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
-        setProcessedImage(data.image_url);
+        console.log('Response data:', data);
+        
+        if (data.message === 'Success' && data.image_url) {
+          console.log('Setting processed image URL:', data.image_url);
+          setProcessedImage(data.image_url);
+        } else {
+          console.error('Invalid response format:', data);
+          throw new Error('Invalid response format from server');
+        }
       } catch (err) {
+        console.error('Error details:', err);
         setError('Failed to process image. Please try again.');
       } finally {
         setLoading(false);
@@ -52,7 +67,7 @@ function App() {
     if (!processedImage) return;
     
     try {
-      const response = await fetch(`http://localhost:8000${processedImage}`);
+      const response = await fetch(`${API_URL}${processedImage}`);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -71,6 +86,39 @@ function App() {
     setImage(null);
     setProcessedImage(null);
     setError(null);
+  };
+
+  const handleProcess = async () => {
+    if (!image) return;
+
+    setLoading(true);
+    setError(null);
+
+    const formData = new FormData();
+    formData.append('file', image);
+
+    try {
+      const response = await fetch(`${API_URL}/upload/`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to process image');
+      }
+
+      const data = await response.json();
+      if (data.message === 'Success' && data.image_url) {
+        setProcessedImage(data.image_url);
+      } else {
+        throw new Error('Invalid response format from server');
+      }
+    } catch (err) {
+      console.error('Error details:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -269,7 +317,7 @@ function App() {
                   ) : processedImage ? (
                     <>
                       <img
-                        src={`http://localhost:8000${processedImage}`}
+                        src={`${API_URL}${processedImage}`}
                         alt="Processed"
                         style={{ 
                           width: '100%', 
@@ -361,7 +409,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={`http://localhost:8000${processedImage}`}
+              src={`${API_URL}${processedImage}`}
               alt="Processed Full Size"
               style={{
                 maxWidth: '100%',
