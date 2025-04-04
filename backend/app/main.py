@@ -45,7 +45,13 @@ app = FastAPI(
 # CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://carnumberplatemasker-frontend.onrender.com", "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5173", "http://127.0.0.1:5173"],  # Frontend URLs
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://carnumberplatemasker-frontend.onrender.com"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -223,13 +229,7 @@ async def get_processed_image(filename: str):
     file_path = OUTPUT_FOLDER / filename
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
-    return FileResponse(
-        file_path,
-        headers={
-            "Access-Control-Allow-Origin": "https://carnumberplatemasker-frontend.onrender.com",
-            "Content-Disposition": f"attachment; filename={filename}"
-        }
-    )
+    return FileResponse(file_path)
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "models_loaded": True}
