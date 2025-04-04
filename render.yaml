@@ -11,8 +11,9 @@ services:
       pip install -r backend/requirements.txt
       mkdir -p backend/static/uploads backend/static/output
       
-      # Build frontend
+      # Build frontend with environment variable
       cd frontend
+      export VITE_API_URL=https://carnumberplatemasker.onrender.com
       npm install
       npm run build
       cd ..
@@ -29,16 +30,4 @@ services:
       name: models
       mountPath: /app/models
       sizeGB: 1
-    healthCheckPath: /health
-
-  - type: static
-    name: carnumberplatemasker-frontend
-    env: node
-    rootDir: frontend
-    buildCommand: |
-      npm install
-      npm run build
-    envVars:
-      - key: VITE_API_URL
-        value: https://carnumberplatemasker.onrender.com
-    staticPublishPath: dist 
+    healthCheckPath: /health 
