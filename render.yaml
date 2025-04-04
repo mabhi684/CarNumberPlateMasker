@@ -3,17 +3,25 @@ services:
     name: carnumberplatemasker
     env: python
     buildCommand: |
+      # Create and activate virtual environment
+      python -m venv .venv
+      source .venv/bin/activate
+      
+      # Install backend dependencies first
+      cd backend
+      pip install -r requirements.txt
+      mkdir -p static/uploads static/output
+      cd ..
+      
       # Build frontend
       cd frontend
       npm install
       npm run build
       cd ..
-      
-      # Install backend dependencies
+    startCommand: |
       cd backend
-      pip install -r requirements.txt
-      mkdir -p static/uploads static/output
-    startCommand: cd backend && python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
+      source ../.venv/bin/activate
+      python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
