@@ -1,12 +1,19 @@
 services:
   - type: web
-    name: carnumberplatemasker-backend
+    name: carnumberplatemasker
     env: python
-    rootDir: backend
     buildCommand: |
+      # Build frontend
+      cd frontend
+      npm install
+      npm run build
+      cd ..
+      
+      # Install backend dependencies
+      cd backend
       pip install -r requirements.txt
       mkdir -p static/uploads static/output
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    startCommand: cd backend && python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
