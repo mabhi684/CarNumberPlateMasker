@@ -36,15 +36,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS Configuration
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins in development
-    allow_credentials=False,  # Set to False since we're not using credentials
-    allow_methods=["*"],  # Allow all methods
-    allow_headers=["*"],  # Allow all headers
-)
-
 # Path Configuration
 BASE_DIR = Path(__file__).resolve().parent.parent
 MODEL_DIR = BASE_DIR / "models"
