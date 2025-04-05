@@ -4,7 +4,7 @@ import { Upload, Download, X, Image as ImageIcon } from 'lucide-react';
 
 const API_URL = import.meta.env.MODE === 'development'
   ? 'http://localhost:8000'  // Local development
-  : 'https://carnumberplatemasker-backend.onrender.com';  // Production
+  : 'https://carnumberplatemasker.onrender.com';  // Production
 
 function App() {
   const [image, setImage] = useState<File | null>(null);
