@@ -2,7 +2,9 @@ import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, Download, X, Image as ImageIcon } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.MODE === 'development'
+  ? 'http://localhost:8000'  // Local development
+  : 'https://carnumberplatemasker-backend.onrender.com';  // Production
 
 function App() {
   const [image, setImage] = useState<File | null>(null);

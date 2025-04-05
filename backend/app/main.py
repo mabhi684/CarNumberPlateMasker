@@ -36,6 +36,18 @@ app = FastAPI(
     version="1.0.0"
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",         # Vite dev server
+        "https://carnumberplatemasker.onrender.com"  # Production frontend
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows POST, GET, etc.
+    allow_headers=["*"],
+)
+
+
 # Path Configuration
 BASE_DIR = Path(__file__).resolve().parent.parent
 MODEL_DIR = BASE_DIR / "models"
@@ -66,13 +78,6 @@ try:
 
 except Exception as e:
     raise RuntimeError("Failed to initialize models") from e
-
-# Mount static files
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-
-# Serve frontend static files
-if FRONTEND_DIR.exists():
-    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
 
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
@@ -218,6 +223,13 @@ async def get_processed_image(filename: str):
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "models_loaded": True}
+
+# Mount static files
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+# Serve frontend static files
+if FRONTEND_DIR.exists():
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
 
 
 if __name__ == "__main__":
