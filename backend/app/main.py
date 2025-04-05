@@ -191,21 +191,27 @@ async def home(request: Request):
 @app.post("/upload/")
 async def upload_image(file: UploadFile = File(...)):
     try:
+        print(f"Received file: {file.filename}")
         file_ext = Path(file.filename).suffix
         unique_name = f"{uuid.uuid4()}{file_ext}"
         save_path = UPLOAD_FOLDER / unique_name
 
+        print(f"Saving file to: {save_path}")
         with open(save_path, "wb") as f:
             content = await file.read()
             f.write(content)
 
+        print("Processing image...")
         output_path = process_image(str(save_path))
+        print(f"Image processed, output at: {output_path}")
+        
         return JSONResponse({
             "message": "Success",
             "image_url": f"/static/output/{Path(output_path).name}"
         })
 
     except Exception as e:
+        print(f"Error processing image: {str(e)}")
         return JSONResponse(
             status_code=500,
             content={"message": f"Processing error: {str(e)}"}

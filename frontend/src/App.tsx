@@ -101,16 +101,24 @@ function App() {
     formData.append('file', image);
 
     try {
+      console.log('Sending request to:', `${API_URL}/upload/`);
       const response = await fetch(`${API_URL}/upload/`, {
         method: 'POST',
         body: formData,
+        headers: {
+          'Accept': 'application/json',
+        }
       });
 
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error('Failed to process image');
+        throw new Error(`Failed to process image: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('Response data:', data);
+      
       if (data.message === 'Success' && data.image_url) {
         setProcessedImage(data.image_url);
       } else {
