@@ -36,7 +36,8 @@ app = FastAPI(
     version="1.0.0"
 )
 
-app.mount("/frontend", StaticFiles(directory="static/frontend", html=True), name="frontend")
+BASE_DIR = Path(__file__).resolve().parent.parent
+app.mount("/frontend", StaticFiles(directory=BASE_DIR /"static/frontend", html=True), name="frontend")
 
 app.add_middleware(
     CORSMiddleware,
@@ -51,7 +52,7 @@ app.add_middleware(
 
 
 # Path Configuration
-BASE_DIR = Path(__file__).resolve().parent.parent
+
 MODEL_DIR = BASE_DIR / "models"
 STATIC_DIR = BASE_DIR / "static"
 FRONTEND_DIR = BASE_DIR.parent / "frontend" / "dist"
@@ -227,7 +228,7 @@ async def health_check():
     return {"status": "healthy", "models_loaded": True}
 
 # Serve static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory=BASE_DIR/"static"), name="static")
 
 
 if __name__ == "__main__":
