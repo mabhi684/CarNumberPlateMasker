@@ -22,7 +22,6 @@ wheels/
 *.egg
 venv/
 .env
-.venv/
 
 # Node
 node_modules/
@@ -56,8 +55,8 @@ logs
 Thumbs.db
 
 # Static files
-backend/static/
 backend/static/uploads/
 backend/static/output/
+backend/dist/
 frontend/build/
 frontend/dist/ 
