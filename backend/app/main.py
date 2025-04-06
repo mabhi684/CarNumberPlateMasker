@@ -36,6 +36,8 @@ app = FastAPI(
     version="1.0.0"
 )
 
+app.mount("/frontend", StaticFiles(directory="static/frontend", html=True), name="frontend")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -172,8 +174,8 @@ def process_image(image_path: str) -> str:
         # Save result
         output_path = OUTPUT_FOLDER / Path(image_path).name
         cv2.imwrite(str(output_path), final_img)
-        return str(output_path)
 
+        return str(output_path)
     except Exception as e:
         raise
 
@@ -224,12 +226,8 @@ async def get_processed_image(filename: str):
 async def health_check():
     return {"status": "healthy", "models_loaded": True}
 
-# Mount static files
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-
-# Serve frontend static files
-if FRONTEND_DIR.exists():
-    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
+# Serve static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 if __name__ == "__main__":
